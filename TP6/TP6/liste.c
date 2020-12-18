@@ -52,17 +52,16 @@ SingleLinkedListElem* GetElementAt(LinkedList* Liste, int i) {
 int InsertElementAt(LinkedList* Liste, int i, Enregistrement pers) {
 	SingleLinkedListElem* CurrentElement, * NewElement;
 	if (Liste == NULL) return(0);
-	// recherche de l'élément qui se trouve déjà en position i
+	// On recherche l'élément qui se trouve en position i 
 	CurrentElement = GetElementAt(Liste, i);
-	// s'il y en a un
 	if (CurrentElement != NULL) {
-		// on insère un nouvel élément
+		// On insère un nouvel élément
 		NewElement = NewLinkedListElement(pers);
-		// son suivant est alors l'élément courant
+		// L'élément suivant devient l'élément courant
 		NewElement->next = CurrentElement;
 
 		if (i == 0) {
-			// si l'insertion est en tête
+			// Si l'insertion est en tête
 			// le nouvel élément devient la tête
 			Liste->head = NewElement;
 		}
@@ -79,12 +78,13 @@ int InsertElementAt(LinkedList* Liste, int i, Enregistrement pers) {
 		if (Liste->size == 0) { // insertion en tête de l'unique élément
 			NewElement = NewLinkedListElement(pers);
 			if (NewElement != NULL) {
-				//
-				//
+			
 				//   insertion code ici
-				//
-				//
-				//
+				
+				Liste->head = NewElement;
+				Liste->tail = NewElement;
+				Liste->size += 1;
+				NewElement->next = CurrentElement;
 			}
 			else {
 				return(0);
@@ -93,12 +93,11 @@ int InsertElementAt(LinkedList* Liste, int i, Enregistrement pers) {
 		if (Liste->size <= i) { // insertion en queue
 			NewElement = NewLinkedListElement(pers);
 			if (NewElement != NULL) {
-				//
-				//
+				
+				
 				//   insertion code ici
-				//
-				//
-				//
+				Liste->tail = NewElement;
+				Liste->size += 1;
 			}
 			else {
 				return(0);
@@ -123,7 +122,23 @@ int DeleteLinkedListElem(LinkedList* list, SingleLinkedListElem* item) {
 	// compléter code ici
 	//
 	//
+	SingleLinkedListElem* tmp = list->head;//on définit le pointeur courant
+	SingleLinkedListElem* previous = NULL;//on définit le pointeur précédent
 
+	if (item == list->head && item == list->tail) {
+		list->head = NULL;
+		list->tail = NULL;
+		list->size = 0;
+		free(item);
+		return 1;
+	}
+
+	if (item = list->head) {
+		list->head = item->next;
+		list->size--;
+		free(item);
+		return 1;
+	}
 
 	return(0);  // pas trouvé
 }

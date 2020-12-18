@@ -11,7 +11,7 @@
 #define SQUELET
 /**************************************************************************/
 /* Compléter votre nom ici                                                */
-/*   Nom :Gulli                         Prénom : Guillaume                */
+/*   Nom : Gulli                         Prénom : Guillaume                */
 /**************************************************************************/
 
 extern bool modif;
@@ -50,11 +50,28 @@ int ajouter_un_contact_dans_rep(Repertoire* rep, Enregistrement enr)
 
 	}
 	else {
-		//
 		// compléter code ici pour Liste
-		//
-		//
-		//
+		if (rep->nb_elts < MAX_ENREG) {
+			SingleLinkedListElem* ele = rep->liste->head;
+			while (!inserted && compt <= rep->liste->size) {				// on cherche à le placer dans l'ordre alphabétique
+				if (est_sup(enr, ele->pers)) {							   
+					if (InsertElementAt(rep->liste, compteur, enr) != 0) {     // une fois trouvé, on verifie qu'on peut le mettre à la bonne place
+						rep->nb_elts += 1;
+						rep->est_trie = true;
+						inserted = true;
+					}
+				}
+				if (ele == NULL) {// cas fin de liste
+					if (InsertElementAt(rep->liste, compt, enr) != 0) {
+						rep->nb_elts += 1;
+						rep->est_trie = true;
+						inserted = true;
+					}
+				}
+				ele = ele->next;// on passe de maille en maille
+			}
+			compteur++;
+		}
 
 	}
 
@@ -128,7 +145,7 @@ void affichage_enreg(Enregistrement enr)
 void affichage_enreg_frmt(Enregistrement enr)
 {
 	// code à compléter ici
-	// comme fonction affichage_enreg, mais avec présentation alignées des infos
+	// Comme la fonction affichage_enreg, mais avec présentation alignées des infos
 	printf_s("|%s", enr.nom);
 	//On ajoute autant d'espace nécessaire pour avoir 20 caractères
 	for (unsigned int i = 0; i < 20 - strlen(enr.nom); i++) {
@@ -174,7 +191,7 @@ void trier(Repertoire* rep)
 
 #ifdef IMPL_TAB
 	// ajouter code ici pour tableau
-	//On effectue un trie à bulle
+	//On effectue un tri à bulle
 	for (int i = 0; i < rep->nb_elts - 1; i++)
 	{
 		for (int j = 0; j < rep->nb_elts - i - 1; j++)
@@ -255,7 +272,16 @@ int rechercher_nom(Repertoire* rep, char nom[], int ind)
 #else
 #ifdef IMPL_LIST
 	// ajouter code ici pour Liste
-
+	SingleLinkedListElem* tmp = rep->liste->head;		// On met le pointeur sur la tête de la liste chaînée
+	for (i = 0; i < rep->liste->size; i++) {
+		if (_stricmp(nom, tmp->pers.nom) == 0) {		// On compare le nom recherché avec le maillon choisi
+			trouve = true;
+			return i - 1;								// On sort de la boucle si le nom a été trouvé
+			break;
+		}
+		tmp = tmp->next;								// On positionne le pointeur sur le maillon suivant
+}
+	return -1;
 #endif
 #endif
 
@@ -275,7 +301,7 @@ void compact(char* s)
 		while (isdigit(s[i]) == false) {
 			for (j = i; s[j] != '\0'; ++j) {
 
-				// Si le jème element n'est pas un vide
+				// Si le jème element n'est pas vide
 				// On donne la valeur du jème +1 au jème element
 				s[j] = s[j + 1];
 			}
@@ -308,6 +334,24 @@ int sauvegarder(Repertoire* rep, char nom_fichier[])
 #else
 #ifdef IMPL_LIST
 	// ajouter code ici pour Liste
+	errno_t err;
+	err = fopen_s(&fic_rep, "rep.txt", "w+");
+	if (err == 0 && fic_rep != NULL)  // Sert à ouvrir le fichier rep.txt
+	{
+		SingleLinkedListElem* currentElement = rep->liste->head;
+		fprintf(fic_rep, "%s;%s;%s\n", currentElement->pers.nom, currentElement->pers.prenom, currentElement->pers.tel);
+
+		for (int i = 0; i < rep->nb_elts; i++) {	// On recopie les infos fournies 
+			fprintf(fic_rep, "%s;%s;%s\n", currentElement->pers.nom, currentElement->pers.prenom, currentElement->pers.tel);
+			currentElement = currentElement->next;
+		}
+		int numclosed = _fcloseall();	//On ferme rep.txt
+	}
+	else
+	{
+		printf("The file 'data2' was not opened\n");
+		return ERROR;
+	}
 #endif
 #endif
 
@@ -364,6 +408,19 @@ int charger(Repertoire* rep, char nom_fichier[])
 #else
 #ifdef IMPL_LIST
 														// ajouter code implemention liste
+				Enregistrement enr;
+				if (lire_champ_suivant(buffer, &idx, enr.nom, MAX_NOM, SEPARATEUR) == OK)
+				{
+					idx++;
+					if (lire_champ_suivant(buffer, &idx, enr.prenom, MAX_NOM, SEPARATEUR) == OK) {
+						idx++;
+						if (lire_champ_suivant(buffer, &idx, enr.tel, MAX_TEL, SEPARATEUR) == OK) {
+							InsertElementAt(rep->liste, num_rec, enr);
+							num_rec++;
+						}
+					}
+				}
+
 #endif
 #endif
 
